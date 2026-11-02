@@ -14,31 +14,51 @@
 <style>
   body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0F1C2E; color: #EAF2F8;
          font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; text-align: center; padding: 16px; box-sizing: border-box; }
+  main { max-width: 360px; }
   img { width: 96px; height: 96px; border-radius: 22px; }
-  a { display: inline-block; margin-top: 16px; padding: 12px 22px; border-radius: 10px; background: #4C8DF0; color: #fff;
-      text-decoration: none; font-weight: 600; }
-  p { color: #93A9BF; max-width: 34ch; }
+  h1 { margin: 12px 0 4px; font-size: 26px; }
+  p { color: #93A9BF; margin: 8px 0; }
+  ol { text-align: left; color: #EAF2F8; padding-left: 22px; margin: 16px 0; }
+  li { margin: 6px 0; }
+  b { color: #F5C451; font-weight: 600; }
+  a.btn { display: inline-block; margin-top: 12px; padding: 12px 22px; border-radius: 10px; background: #4C8DF0; color: #fff;
+          text-decoration: none; font-weight: 600; }
 </style>
 </head>
 <body>
 <main>
   <img src="apple-touch-icon.png" alt="">
-  <h1 style="margin:12px 0 0;font-size:24px">Remízy</h1>
-  <p id="msg">Otváram appku…</p>
-  <a id="go" href="#" hidden>Otvoriť appku</a>
+  <h1>Remízy</h1>
+  <div id="setup" hidden>
+    <p>Pridaj si appku na plochu iPhonu:</p>
+    <ol>
+      <li>Dole v Safari ťukni na <b>Zdieľať</b> (štvorček so šípkou).</li>
+      <li>Vyber <b>Pridať na plochu</b> a potvrď <b>Pridať</b>.</li>
+      <li>Na ploche ťukni na ikonu <b>Remízy</b> – otvorí sa rovno appka.</li>
+    </ol>
+    <a class="btn" id="go" href="#">Otvoriť appku teraz</a>
+  </div>
+  <p id="msg"></p>
 </main>
 <script>
   // Sem vlož adresu webovej aplikácie z Apps Scriptu (končí na /exec):
-  const APP_URL = 'https://script.google.com/macros/s/AKfycbzjXQKg-s1e31BnOl0O2OPZ7WhPSHVYsAOF25GdD0XSmkk1uZhNp4nmztjTTk4hLT9Z/exec';
+  const APP_URL = 'SEM_VLOZ_ADRESU_APPKY';
 
   const ok = /^https:\/\/script\.google\.com\/.+\/exec/.test(APP_URL);
-  const go = document.getElementById('go');
-  if (ok) {
-    go.href = APP_URL; go.hidden = false;
-    location.replace(APP_URL);
-  } else {
+  const params = new URLSearchParams(location.search);
+  if (!ok) {
     document.getElementById('msg').textContent =
       'Chýba adresa appky. V súbore index.html na GitHube doplň APP_URL (adresa webovej aplikácie z Apps Scriptu, končí na /exec).';
+  } else if (params.get('app') === '1') {
+    // spustené z ikony na ploche (alebo z uloženej záložky) – rovno do appky
+    document.getElementById('msg').textContent = 'Otváram appku…';
+    location.replace(APP_URL);
+  } else {
+    // prvé otvorenie: nepresmerovať, aby sa dala pridať ikona na plochu.
+    // Adresu stránky zmeníme na ?app=1 – presne tá sa uloží s ikonou.
+    history.replaceState(null, '', location.pathname + '?app=1');
+    document.getElementById('setup').hidden = false;
+    document.getElementById('go').href = APP_URL;
   }
 </script>
 </body>
